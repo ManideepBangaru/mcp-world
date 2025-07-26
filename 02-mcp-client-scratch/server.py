@@ -40,5 +40,5 @@ def convert_currency(amount: float, from_currency: str, to_currency: str) -> str
 
 # Run the server
 if __name__ == "__main__":
-    mcp.run()
-    # mcp.run(transport="sse", host="127.0.0.1", port=8000)
+    # mcp.run()
+    mcp.run(transport="sse", host="127.0.0.1", port=8000)

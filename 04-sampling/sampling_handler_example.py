@@ -1,5 +1,12 @@
 from fastmcp.client.sampling import SamplingMessage, SamplingParams, RequestContext
 from litellm import acompletion
+import os
+from dotenv import load_dotenv
+
+from fastmcp import Client
+import asyncio
+
+load_dotenv()
 
 async def sampling_handler(messages: list[SamplingMessage],
                            params: SamplingParams,
@@ -21,7 +28,7 @@ async def sampling_handler(messages: list[SamplingMessage],
     try:
         response = await acompletion(model="gpt-4o",
                                      messages=chat_messages,
-                                     api_key="your_api_key",
+                                     api_key=os.getenv("OPENAI_API_KEY"),
         )
         generated_text = response["choices"][0]["message"]["content"]
     
@@ -29,3 +36,16 @@ async def sampling_handler(messages: list[SamplingMessage],
         generated_text = f"[Error: LLM failed: {e}]"
 
     return generated_text
+
+
+client = Client("http://localhost:8000/sse",
+                sampling_handler=sampling_handler)
+
+async def main():
+    async with client:
+        result = await client.call_tool("summarize_document", 
+                                        {"document_text": "Your text here"})
+        print(result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
